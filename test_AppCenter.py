@@ -1,8 +1,9 @@
 import requests
 import pytest
+from mongo_connection import get_mongo_collection
 
 api_token = "9d99f4f0915046d9a2761c80ce93c522d4e5a5ab"
-
+collection = get_mongo_collection()
 
 #Tests para verificar la informacion del usuario
 def test_get_user_verify_username():
@@ -15,9 +16,10 @@ def test_get_user_verify_username():
     response = requests.get(url, headers=headers)
     data = response.json()
 
-    assert data["name"] == "mavendanog"
+    expected = collection.find_one()["prueba_1"]["expected"]
+    assert data["name"] == expected
 
-
+######################################################################
 def test_get_user_verify_display_name():
     url = f"https://api.appcenter.ms/v0.1/user"
     headers = {
@@ -28,9 +30,10 @@ def test_get_user_verify_display_name():
     response = requests.get(url, headers=headers)
     data = response.json()
 
-    assert data["display_name"] == "MAURICIO AVENDAÑO GONZALEZ"
+    expected = collection.find_one()["prueba_2"]["expected"]
+    assert data["display_name"] == expected
 
-
+######################################################################
 def test_get_user_verify_mail():
     url = f"https://api.appcenter.ms/v0.1/user"
     headers = {
@@ -41,7 +44,10 @@ def test_get_user_verify_mail():
     response = requests.get(url, headers=headers)
     data = response.json()
 
-    assert data["email"] == "mavendanog@unicesar.edu.co"
+    expected = collection.find_one()["prueba_3"]["expected"]
+    assert data["email"] == expected
+
+######################################################################
 
 
 
@@ -55,24 +61,21 @@ def test_create_organization_verify_display_name():
         "X-API-Token": api_token,
     }
 
-    payload = {
-        "display_name": "organizacionPrueba",
-        "name": "pruebaOrg123"
-    }
-
+    payload = collection.find_one()["prueba_4"]["payload"]
     response = requests.post(url, headers=headers, json=payload)
-
     data = response.json()
 
     if response.status_code == 429:
         pytest.xfail("Exceeded organization creation limit")
 
-    assert data["display_name"] == "organizacionPrueba"
+    expected = collection.find_one()["prueba_4"]["expected"]
+    assert data["display_name"] == expected
 
     if response.status_code == 201:
         organization_name = payload["name"]
         delete_organization(organization_name)
 
+######################################################################
 
 def test_create_organization_verify_name():
     url = f"https://api.appcenter.ms/v0.1/orgs"
@@ -81,10 +84,7 @@ def test_create_organization_verify_name():
         "X-API-Token": api_token,
     }
 
-    payload = {
-        "display_name": "organizacionPrueba",
-        "name": "pruebaOrg123"
-    }
+    payload = collection.find_one()["prueba_5"]["payload"]
 
     response = requests.post(url, headers=headers, json=payload)
 
@@ -93,12 +93,14 @@ def test_create_organization_verify_name():
     if response.status_code == 429:
         pytest.xfail("Exceeded organization creation limit")
 
-    assert data["name"] == "pruebaOrg123"
+    expected = collection.find_one()["prueba_5"]["expected"]
+    assert data["name"] == expected
 
     if response.status_code == 201:
         organization_name = payload["name"]
         delete_organization(organization_name)
 
+######################################################################
 
 def test_create_organization_verify_statusCode():
     url = f"https://api.appcenter.ms/v0.1/orgs"
@@ -107,21 +109,23 @@ def test_create_organization_verify_statusCode():
         "X-API-Token": api_token,
     }
 
-    payload = {
-        "display_name": "organizacionPrueba",
-        "name": "pruebaOrg123"
-    }
+    payload = collection.find_one()["prueba_6"]["payload"]
 
     response = requests.post(url, headers=headers, json=payload)
 
     if response.status_code == 429:
         pytest.xfail("Exceeded organization creation limit")
 
-    assert response.status_code == 201
 
-    if response.status_code == 201:
+    expected = payload = collection.find_one()["prueba_6"]["expected"]
+    assert response.status_code == expected
+
+    if response.status_code == expected:
         organization_name = payload["name"]
         delete_organization(organization_name)
+
+######################################################################
+
 
 
 
@@ -155,6 +159,7 @@ def test_create_app_verify_statusCode():
         app_name = payload["name"]
         delete_app("mavendanog", app_name)
 
+######################################################################
 
 def test_create_app_verify_display_name():
     url = f"https://api.appcenter.ms/v0.1/apps"
@@ -185,6 +190,7 @@ def test_create_app_verify_display_name():
         app_name = payload["name"]
         delete_app("mavendanog", app_name)
 
+######################################################################
 
 def test_create_app_verify_unauthorized_token():
     url = "https://api.appcenter.ms/v0.1/apps"
@@ -214,6 +220,9 @@ def test_create_app_verify_unauthorized_token():
     assert response.json()["code"] == "Unauthorized"
     assert "Unauthorized. Correlation ID" in response.json()["message"]
 
+######################################################################
+
+
 
 
 
@@ -232,6 +241,7 @@ def test_invitations_unauthorized_token():
     assert response.json()["code"] == "Unauthorized"
     assert "Unauthorized. Correlation ID" in response.json()["message"]
 
+######################################################################
 
 def test_invitations_verify_invitations_sent():
     url = "https://api.appcenter.ms/v0.1/invitations/sent"
@@ -249,6 +259,7 @@ def test_invitations_verify_invitations_sent():
         # Se han enviado invitaciones
         assert len(response.json()) > 0
 
+######################################################################
 
 def test_invitations_verify_status_code():
     url = "https://api.appcenter.ms/v0.1/invitations/sent"
@@ -260,6 +271,13 @@ def test_invitations_verify_status_code():
     response = requests.get(url, headers=headers)
 
     assert response.status_code == 200
+
+######################################################################
+
+
+
+
+
 
 
 
@@ -276,6 +294,7 @@ def test_azure_subscriptions_verify_status_code():
 
     assert response.status_code == 200
 
+######################################################################
 
 def test_azure_subscriptions_verify_suscriptions():
     url = "https://api.appcenter.ms/v0.1/azure_subscriptions"
@@ -293,6 +312,7 @@ def test_azure_subscriptions_verify_suscriptions():
         # Lista de suscrpciones
         assert len(response.json()) > 0
 
+######################################################################
 
 def test_azure_subscriptions_unauthorized_token():
     url = "https://api.appcenter.ms/v0.1/azure_subscriptions"
@@ -306,6 +326,12 @@ def test_azure_subscriptions_unauthorized_token():
     assert response.status_code == 401
     assert response.json()["code"] == "Unauthorized"
     assert "Unauthorized. Correlation ID" in response.json()["message"]
+
+######################################################################
+
+
+
+
 
 
 
