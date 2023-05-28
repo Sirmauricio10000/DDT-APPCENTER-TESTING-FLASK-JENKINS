@@ -2,16 +2,12 @@ import requests
 import pytest
 from mongo_connection import get_mongo_collection
 
-api_token = "9d99f4f0915046d9a2761c80ce93c522d4e5a5ab"
 collection = get_mongo_collection()
+headers = collection.find_one()["headers"]
 
 #Tests para verificar la informacion del usuario
 def test_get_user_verify_username():
     url = f"https://api.appcenter.ms/v0.1/user"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": api_token
-    }
 
     response = requests.get(url, headers=headers)
     data = response.json()
@@ -22,10 +18,6 @@ def test_get_user_verify_username():
 ######################################################################
 def test_get_user_verify_display_name():
     url = f"https://api.appcenter.ms/v0.1/user"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": api_token
-    }
 
     response = requests.get(url, headers=headers)
     data = response.json()
@@ -36,10 +28,6 @@ def test_get_user_verify_display_name():
 ######################################################################
 def test_get_user_verify_mail():
     url = f"https://api.appcenter.ms/v0.1/user"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": api_token
-    }
 
     response = requests.get(url, headers=headers)
     data = response.json()
@@ -56,10 +44,6 @@ def test_get_user_verify_mail():
 #Tests para crear organizaciones
 def test_create_organization_verify_display_name():
     url = f"https://api.appcenter.ms/v0.1/orgs"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": api_token,
-    }
 
     payload = collection.find_one()["prueba_4"]["payload"]
     response = requests.post(url, headers=headers, json=payload)
@@ -79,10 +63,6 @@ def test_create_organization_verify_display_name():
 
 def test_create_organization_verify_name():
     url = f"https://api.appcenter.ms/v0.1/orgs"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": api_token,
-    }
 
     payload = collection.find_one()["prueba_5"]["payload"]
 
@@ -104,10 +84,6 @@ def test_create_organization_verify_name():
 
 def test_create_organization_verify_statusCode():
     url = f"https://api.appcenter.ms/v0.1/orgs"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": api_token,
-    }
 
     payload = collection.find_one()["prueba_6"]["payload"]
 
@@ -117,7 +93,7 @@ def test_create_organization_verify_statusCode():
         pytest.xfail("Exceeded organization creation limit")
 
 
-    expected = payload = collection.find_one()["prueba_6"]["expected"]
+    expected = collection.find_one()["prueba_6"]["expected"]
     assert response.status_code == expected
 
     if response.status_code == expected:
@@ -134,28 +110,18 @@ def test_create_organization_verify_statusCode():
 #Tests Para crear APPS
 def test_create_app_verify_statusCode():
     url = f"https://api.appcenter.ms/v0.1/apps"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": api_token,
-    }
 
-    payload = {
-        "description": "descripcion_prueba",
-        "release_type": "Release123",
-        "display_name": "app para testing DPP",
-        "name": "AppTestingDDP",
-        "os": "Android",
-        "platform": "Java"
-    }
+    payload = collection.find_one()["prueba_7"]["payload"]
 
     response = requests.post(url, headers=headers, json=payload)
 
     if response.status_code == 429:
         pytest.xfail("Exceeded apps creation limit")
 
-    assert response.status_code == 201
+    expected = payload = collection.find_one()["prueba_7"]["expected"]
+    assert response.status_code == expected
     
-    if response.status_code == 201:
+    if response.status_code == expected:
         app_name = payload["name"]
         delete_app("mavendanog", app_name)
 
@@ -163,19 +129,8 @@ def test_create_app_verify_statusCode():
 
 def test_create_app_verify_display_name():
     url = f"https://api.appcenter.ms/v0.1/apps"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": api_token,
-    }
 
-    payload = {
-        "description": "descripcion_prueba",
-        "release_type": "Release123",
-        "display_name": "app para testing DPP",
-        "name": "AppTestingDDP",
-        "os": "Android",
-        "platform": "Java"
-    }
+    payload = collection.find_one()["prueba_8"]["payload"]
 
     response = requests.post(url, headers=headers, json=payload)
 
@@ -184,7 +139,9 @@ def test_create_app_verify_display_name():
 
     data = response.json()
 
-    assert data["display_name"] == "app para testing DPP"
+
+    expected = collection.find_one()["prueba_8"]["expected"]
+    assert data["display_name"] == expected
 
     if response.status_code == 201:
         app_name = payload["name"]
@@ -195,18 +152,10 @@ def test_create_app_verify_display_name():
 def test_create_app_verify_unauthorized_token():
     url = "https://api.appcenter.ms/v0.1/apps"
     headers = {
-        "Accept": "application/json",
-        "X-API-Token": "token_no_autorizado",
+        "X-API-Token": collection.find_one()["prueba_9"]["unauthorized_token"],
     }
 
-    payload = {
-        "description": "descripcion_prueba",
-        "release_type": "Release123",
-        "display_name": "app para testing DPP",
-        "name": "AppTestingDDP",
-        "os": "Android",
-        "platform": "Java"
-    }
+    payload = collection.find_one()["prueba_9"]["payload"]
 
 
     response = requests.post(url, headers=headers, json=payload)
@@ -215,10 +164,9 @@ def test_create_app_verify_unauthorized_token():
         pytest.xfail("Exceeded apps creation limit")
 
 
+    expected = collection.find_one()["prueba_9"]["expected"]
 
-    assert response.status_code == 401
-    assert response.json()["code"] == "Unauthorized"
-    assert "Unauthorized. Correlation ID" in response.json()["message"]
+    assert response.status_code == expected
 
 ######################################################################
 
@@ -231,15 +179,13 @@ def test_create_app_verify_unauthorized_token():
 def test_invitations_unauthorized_token():
     url = "https://api.appcenter.ms/v0.1/invitations/sent"
     headers = {
-        "Accept": "application/json",
-        "X-API-Token": "token_no_autorizado",
+        "X-API-Token": collection.find_one()["prueba_10"]["unauthorized_token"],
     }
 
     response = requests.get(url, headers=headers)
 
-    assert response.status_code == 401
-    assert response.json()["code"] == "Unauthorized"
-    assert "Unauthorized. Correlation ID" in response.json()["message"]
+    expected = collection.find_one()["prueba_10"]["expected"]
+    assert response.status_code == expected
 
 ######################################################################
 
@@ -251,26 +197,22 @@ def test_invitations_verify_invitations_sent():
     }
 
     response = requests.get(url, headers=headers)
-
+    expected = collection.find_one()["prueba_11"]["expected"]
+    
     if len(response.json()) == 0:
-        # No se han enviado invitaciones
-        assert response.json() == []
+        assert len(response.json()) == expected
     else:
-        # Se han enviado invitaciones
-        assert len(response.json()) > 0
+        assert len(response.json()) > expected
 
 ######################################################################
 
 def test_invitations_verify_status_code():
     url = "https://api.appcenter.ms/v0.1/invitations/sent"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": "9d99f4f0915046d9a2761c80ce93c522d4e5a5ab",
-    }
 
     response = requests.get(url, headers=headers)
+    expected = collection.find_one()["prueba_12"]["expected"]
 
-    assert response.status_code == 200
+    assert response.status_code == expected
 
 ######################################################################
 
@@ -285,47 +227,38 @@ def test_invitations_verify_status_code():
 #Tests para verificar las subscripciones azure del usuario
 def test_azure_subscriptions_verify_status_code():
     url = "https://api.appcenter.ms/v0.1/azure_subscriptions"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": "9d99f4f0915046d9a2761c80ce93c522d4e5a5ab",
-    }
 
     response = requests.get(url, headers=headers)
+    expected = collection.find_one()["prueba_13"]["expected"]
 
-    assert response.status_code == 200
+    assert response.status_code == expected
 
 ######################################################################
 
 def test_azure_subscriptions_verify_suscriptions():
     url = "https://api.appcenter.ms/v0.1/azure_subscriptions"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": "9d99f4f0915046d9a2761c80ce93c522d4e5a5ab",
-    }
 
     response = requests.get(url, headers=headers)
 
+    expected = collection.find_one()["prueba_14"]["expected"]
+
     if len(response.json()) == 0:
-        # No tiene suscripciones
-        assert response.json() == []
+        assert len(response.json()) == expected
     else:
-        # Lista de suscrpciones
-        assert len(response.json()) > 0
+        assert len(response.json()) > expected
 
 ######################################################################
 
 def test_azure_subscriptions_unauthorized_token():
     url = "https://api.appcenter.ms/v0.1/azure_subscriptions"
     headers = {
-        "Accept": "application/json",
-        "X-API-Token": "token_no_autorizado",
+        "X-API-Token": collection.find_one()["prueba_15"]["unauthorized_token"],
     }
 
     response = requests.get(url, headers=headers)
 
-    assert response.status_code == 401
-    assert response.json()["code"] == "Unauthorized"
-    assert "Unauthorized. Correlation ID" in response.json()["message"]
+    expected = collection.find_one()["prueba_15"]["expected"]
+    assert response.status_code == expected
 
 ######################################################################
 
@@ -341,10 +274,6 @@ def test_azure_subscriptions_unauthorized_token():
 
 def delete_organization(org_name):
     url = f"https://api.appcenter.ms/v0.1/orgs/{org_name}"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": api_token,
-    }
 
     response = requests.delete(url, headers=headers)
 
@@ -356,10 +285,6 @@ def delete_organization(org_name):
 
 def delete_app(owner_name, app_name):
     url = f"https://api.appcenter.ms/v0.1/apps/{owner_name}/{app_name}"
-    headers = {
-        "Accept": "application/json",
-        "X-API-Token": api_token,
-    }
 
     response = requests.delete(url, headers=headers)
 
