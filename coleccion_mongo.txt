@@ -1,0 +1,93 @@
+{
+  "_id": {
+    "$oid": "647283f0d71e500cbf440cbb"
+  },
+  "headers": {
+    "Accept": "application/json",
+    "X-API-Token": "9d99f4f0915046d9a2761c80ce93c522d4e5a5ab"
+  },
+  "prueba_1": {
+    "expected": "mavendanog"
+  },
+  "prueba_2": {
+    "expected": "MAURICIO AVENDAÑO GONZALEZ"
+  },
+  "prueba_3": {
+    "expected": "mavendanog@unicesar.edu.co"
+  },
+  "prueba_4": {
+    "payload": {
+      "display_name": "organizacionPrueba",
+      "name": "pruebaOrg12345"
+    },
+    "expected": "organizacionPrueba"
+  },
+  "prueba_5": {
+    "payload": {
+      "display_name": "organizacionPrueba",
+      "name": "pruebaOrg12345"
+    },
+    "expected": "pruebaOrg12345"
+  },
+  "prueba_6": {
+    "payload": {
+      "display_name": "organizacionPrueba",
+      "name": "pruebaOrg12345"
+    },
+    "expected": 201
+  },
+  "prueba_7": {
+    "payload": {
+      "description": "descripcion_prueba",
+      "release_type": "Release123",
+      "display_name": "app para testing DPP",
+      "name": "AppTestingDDP",
+      "os": "Android",
+      "platform": "Java"
+    },
+    "expected": 201
+  },
+  "prueba_8": {
+    "payload": {
+      "description": "descripcion_prueba",
+      "release_type": "Release123",
+      "display_name": "app para testing DPP",
+      "name": "AppTestingDDP",
+      "os": "Android",
+      "platform": "Java"
+    },
+    "expected": "app para testing DPP"
+  },
+  "prueba_9": {
+    "payload": {
+      "description": "descripcion_prueba",
+      "release_type": "Release123",
+      "display_name": "app para testing DPP",
+      "name": "AppTestingDDP",
+      "os": "Android",
+      "platform": "Java"
+    },
+    "expected": 401,
+    "unauthorized_token": "token_no_autorizado"
+  },
+  "prueba_10": {
+    "expected": 401,
+    "unauthorized_token": "token_no_autorizado"
+  },
+  "prueba_11": {
+    "expected": 0
+  },
+  "prueba_12": {
+    "expected": 200
+  },
+  "prueba_13": {
+    "expected": 200
+  },
+  "prueba_14": {
+    "expected": 0
+  },
+  "prueba_15": {
+    "expected": 401,
+    "unauthorized_token": "token_no_autorizado"
+  }
+}
