@@ -118,7 +118,7 @@ def test_create_app_verify_statusCode():
     if response.status_code == 429:
         pytest.xfail("Exceeded apps creation limit")
 
-    expected = payload = collection.find_one()["prueba_7"]["expected"]
+    expected = collection.find_one()["prueba_7"]["expected"]
     assert response.status_code == expected
     
     if response.status_code == expected:
@@ -138,7 +138,6 @@ def test_create_app_verify_display_name():
         pytest.xfail("Exceeded apps creation limit")
 
     data = response.json()
-
 
     expected = collection.find_one()["prueba_8"]["expected"]
     assert data["display_name"] == expected
