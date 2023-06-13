@@ -120,6 +120,8 @@ def test_create_app_verify_statusCode():
 
     expected = collection.find_one()["prueba_7"]["expected"]
     assert response.status_code == expected
+
+    print(expected)
     
     if response.status_code == expected:
         app_name = payload["name"]
