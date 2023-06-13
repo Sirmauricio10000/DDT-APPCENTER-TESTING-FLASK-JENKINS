@@ -27,7 +27,7 @@ pipeline {
 
         stage('API testing') {
             steps {
-                sh 'pytest test_AppCenter.py'
+                sh 'pytest'
             }
         }
 
